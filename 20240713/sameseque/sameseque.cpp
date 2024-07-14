@@ -9,9 +9,9 @@ using namespace std;
 int main()
 {
     int N, K;
-    cin >> N >> K;
-    vector<vector<int> > value(N, vector<int>(K));
-    vector<map<string, int>> nums(N);
+    //cin >> N >> K;
+    // vector<vector<int> > value(N, vector<int>(K));
+    // vector<map<string, int>> nums(N);
 
     
     /**
@@ -33,35 +33,44 @@ int main()
     //     out << endl;
     // }
     // out.close();
-    //return 0;
+    // return 0;
+
     /**
      * 目的：从文件circle.txt里读取数据，判断N个环形队列是否相同
      * 文件内容格式：第一行， 一个整数 N 一个整数 K；接下来N行，每一行K个整数，用空格隔开
      */
-    // ifstream in("circle.txt");
-    // if (!in.is_open())
-    // {
-    //     cout << "文件打开失败" << endl;
-    //     return 0;
-    // }
-    // in >> N >> K;
-    
+    ifstream in("circle.txt");
+    if (!in.is_open())
+    {
+        cout << "文件打开失败" << endl;
+        return 0;
+    }
+    cout << "open success" << endl;
+    in >> N >> K;
+    cout << "N=" << N << " K=" << K << endl;
+    vector<vector<int> > value(N, vector<int>(K));
+    vector<map<string, int>> nums(N);
+    for (int i = 0; i < N; i++)
+    {
+        // if (i >= 99000)
+        // {
+        //     cout << "i=" << i << endl;
+        // }
+        for (int j = 0; j < K; j++)
+        {
+            in >> value[i][j];
+        }
+    }
+    cout << "read success" << endl;
     // for (int i = 0; i < N; i++)
     // {
     //     for (int j = 0; j < K; j++)
     //     {
-    //         in >> value[i][j];
+    //         cin >> value[i][j];
     //     }
     // }
 
     int res = 0;
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < K; j++)
-        {
-            cin >> value[i][j];
-        }
-    }
     auto start = chrono::steady_clock::now();
     for (int i = 0; i < N; i++)
     {
@@ -79,8 +88,14 @@ int main()
         /**
          * 从容器temp的任意位置的索引开始，将temp的元素序列化之后合并成一个string字符串，存入map容器nums[i]中，然后反方向再序列化一遍存入map容器nums[i]中
          */
+        // if(i % 1000 == 0)
+        // {
+        //     cout << "i=" << i << endl;
+        // }
+        // auto start = chrono::steady_clock::now();
         for (int j = 0; j < K; j++)
         {
+            
             string str = "";
             for (int k = j; k < K; k++)
             {
@@ -118,7 +133,10 @@ int main()
                 str += to_string(temp[k]);
             }
             nums[i][str]++;
+
         }
+        // auto end = chrono::steady_clock::now();
+        // cout << "i=" << i << "函数运行时间：" << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms" << endl;
         
     }
 
