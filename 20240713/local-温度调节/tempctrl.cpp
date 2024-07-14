@@ -146,8 +146,8 @@ int main()
     auto end = std::chrono::high_resolution_clock::now();
     
     // 计算持续时间（以微秒为单位）
-    // auto duration_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    // std::cout << "函数执行时间: " << duration_seconds << " 毫秒" << std::endl;
+    auto duration_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    std::cout << "函数执行时间: " << duration_seconds << " 毫秒" << std::endl;
     // cout << "total=" << total << endl;
     // cout << "total1=" << total1 << endl;
     cout << totalmin__ << endl;

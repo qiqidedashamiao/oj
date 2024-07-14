@@ -4,6 +4,7 @@
         "chrono": "cpp",
         "iostream": "cpp",
         "vector": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "algorithm": "cpp"
     }
 }
