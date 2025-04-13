@@ -1,0 +1,6 @@
+题意：定义4n+1数（简称H数），H数分为三类：unit，即为1; H-primes，只能分解为1×自身，类似于我们平时说的素数; H-composites，除unit和H-primes数以外的H数。输入h，求[1,h]之间的H-composites数的个数。
+
+思路：写了我3个多小时，因为题目理解错误和代码错误，写得崩溃。。QAQ。先说我想到的正确解法，注意到H-primes和我们说的素数基本类似，所以我们可以用欧筛法打表求出所有的H-primes，然后打表求出所有的H-composites，方法是枚举所有素数，如果这两个素数的乘积小于1e6+1，则记录为H-composites，要注意的是这里的判断不能写prime1[i]*prime[j]<=1000001，因为prime1[i]*prime[j]可能超出int范围，然后会导致段错误，所以应该除法判断（见代码）。然后对每一组输入h，二分查找<=h的最大H-composites数，它的下标+1即有多少个<=h的H-composites数，即所求结果。
+
+
+

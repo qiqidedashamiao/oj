@@ -1,0 +1,6 @@
+poj1845
+http://poj.org/awardcontest_announce_eng.htm
+考虑两个自然数A和B。设S为A^B的所有自然约数之和。确定S模9907（S除以9907的其余部分）
+输入：唯一的一行包含两个自然数A和B（0<=A，B<=50000000），用空格隔开。
+输出：行将包含S modulo 9901。
+使用c++做出此题目
