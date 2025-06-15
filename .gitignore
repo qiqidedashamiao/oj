@@ -5,4 +5,9 @@ core*
 test3.in
 test3.out
 
+.vscode
+# 所有文件夹下的"._“开头的缓存文件
+._*
+# 所有文件夹下的".DS_Store"文件
+.DS_Store
 
