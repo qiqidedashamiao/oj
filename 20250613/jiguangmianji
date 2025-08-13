@@ -34,6 +34,87 @@ deepseek错误 解答错误
 豆包错误
 通义错误
 
+
+deepseek答案： 超出时间限制
+int n = grid.size();
+        if (n == 1) 
+            return 0;
+
+        vector<vector<long long>> prefix_col;
+        for (int j = 0; j < n; j++) {
+            vector<long long> pre(n, 0);
+            if (n > 0) {
+                pre[0] = grid[0][j];
+                for (int i = 1; i < n; i++) {
+                    pre[i] = pre[i-1] + grid[i][j];
+                }
+            }
+            prefix_col.push_back(pre);
+        }
+
+        auto get_sum = [&](int j, int L, int R) -> long long {
+            if (L > R) 
+                return 0;
+            R = min(R, n-1);
+            L = max(L, 0);
+            if (L > R) 
+                return 0;
+            if (L == 0) 
+                return prefix_col[j][R];
+            return prefix_col[j][R] - prefix_col[j][L-1];
+        };
+
+        vector<vector<long long>> dp_prev(n+1, vector<long long>(n+1, LLONG_MIN));
+        for (int a = 0; a <= n; a++) {
+            for (int b = 0; b <= n; b++) {
+                long long score = 0;
+                if (a <= b-1) {
+                    score = get_sum(0, a, b-1);
+                }
+                dp_prev[a][b] = score;
+            }
+        }
+
+        for (int j = 2; j < n; j++) {
+            vector<vector<long long>> dp_curr(n+1, vector<long long>(n+1, LLONG_MIN));
+            for (int a = 0; a <= n; a++) {
+                for (int b = 0; b <= n; b++) {
+                    if (dp_prev[a][b] == LLONG_MIN) 
+                        continue;
+                    for (int c = 0; c <= n; c++) {
+                        int low_i = b;
+                        int high_i = max(a-1, c-1);
+                        long long add = 0;
+                        if (low_i <= high_i) {
+                            add = get_sum(j-1, low_i, high_i);
+                        }
+                        long long new_val = dp_prev[a][b] + add;
+                        if (new_val > dp_curr[b][c]) {
+                            dp_curr[b][c] = new_val;
+                        }
+                    }
+                }
+            }
+            dp_prev = dp_curr;
+        }
+
+        long long ans = LLONG_MIN;
+        for (int a = 0; a <= n; a++) {
+            for (int b = 0; b <= n; b++) {
+                if (dp_prev[a][b] == LLONG_MIN) 
+                    continue;
+                long long add_last = 0;
+                if (b <= a-1) {
+                    add_last = get_sum(n-1, b, a-1);
+                }
+                long long total = dp_prev[a][b] + add_last;
+                if (total > ans) 
+                    ans = total;
+            }
+        }
+
+        return ans;
+
 3367. 移除边之后的权重最大和
 deepseek错误 内存超限  见用例
 豆包错误
