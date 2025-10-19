@@ -7,88 +7,176 @@ deepseek错误 解答错误
 通义错误
 
 
-deepseek答案： 超出时间限制
-int n = grid.size();
-        if (n == 1) 
-            return 0;
-
-        vector<vector<long long>> prefix_col;
-        for (int j = 0; j < n; j++) {
-            vector<long long> pre(n, 0);
-            if (n > 0) {
-                pre[0] = grid[0][j];
-                for (int i = 1; i < n; i++) {
-                    pre[i] = pre[i-1] + grid[i][j];
-                }
-            }
-            prefix_col.push_back(pre);
-        }
-
-        auto get_sum = [&](int j, int L, int R) -> long long {
-            if (L > R) 
-                return 0;
-            R = min(R, n-1);
-            L = max(L, 0);
-            if (L > R) 
-                return 0;
-            if (L == 0) 
-                return prefix_col[j][R];
-            return prefix_col[j][R] - prefix_col[j][L-1];
-        };
-
-        vector<vector<long long>> dp_prev(n+1, vector<long long>(n+1, LLONG_MIN));
-        for (int a = 0; a <= n; a++) {
-            for (int b = 0; b <= n; b++) {
-                long long score = 0;
-                if (a <= b-1) {
-                    score = get_sum(0, a, b-1);
-                }
-                dp_prev[a][b] = score;
-            }
-        }
-
-        for (int j = 2; j < n; j++) {
-            vector<vector<long long>> dp_curr(n+1, vector<long long>(n+1, LLONG_MIN));
-            for (int a = 0; a <= n; a++) {
-                for (int b = 0; b <= n; b++) {
-                    if (dp_prev[a][b] == LLONG_MIN) 
-                        continue;
-                    for (int c = 0; c <= n; c++) {
-                        int low_i = b;
-                        int high_i = max(a-1, c-1);
-                        long long add = 0;
-                        if (low_i <= high_i) {
-                            add = get_sum(j-1, low_i, high_i);
-                        }
-                        long long new_val = dp_prev[a][b] + add;
-                        if (new_val > dp_curr[b][c]) {
-                            dp_curr[b][c] = new_val;
-                        }
-                    }
-                }
-            }
-            dp_prev = dp_curr;
-        }
-
-        long long ans = LLONG_MIN;
-        for (int a = 0; a <= n; a++) {
-            for (int b = 0; b <= n; b++) {
-                if (dp_prev[a][b] == LLONG_MIN) 
-                    continue;
-                long long add_last = 0;
-                if (b <= a-1) {
-                    add_last = get_sum(n-1, b, a-1);
-                }
-                long long total = dp_prev[a][b] + add_last;
-                if (total > ans) 
-                    ans = total;
-            }
-        }
-
-        return ans;
-
 3367. 移除边之后的权重最大和
 deepseek正确
 豆包错误
 通义错误
 
+
+3373. 连接两棵树后最大目标节点数目 II
+deepseek 通过
+
+
+C++实现，不要使用lambda表达式
+
+3454. 分割正方形 II  --- 不可以
+deepseek 错误
+豆包 超出内存限制
+通义 解答错误
+
+
+
+3463. 判断操作后字符串中的数字是否相等 II
+deepseek 正确
+豆包 正确
+通义 正确
+
+
+
+3464. 正方形上的点之间的最大距离
+deepseek 通过
+豆包 超出时间限制
+通义 超出时间限制
+
+
+3548. 等和矩阵分割 II 
+deepseek 通过
+
+
+3562. 折扣价交易股票的最大利润
+deepseek 通过
+
+3585. 树中找到带权中位节点
+deepseek 解答错误
+
+
+3625. 统计梯形的数目 II 
+deepseek 解答错误
+
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
+#include <functional>
+#include <set>
+using namespace std;
+
+class Solution {
+public:
+    int countTrapezoids(vector<vector<int>>& points) {
+        int n = points.size();
+        int result = 0;
+        
+        // 用于存储中间结果的变量
+        vector<vector<pair<int, int>>> velmoranic;
+        
+        // 枚举所有点对，按斜率分组
+        unordered_map<string, vector<pair<int, int>>> slopeGroups;
+        
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                int dx = points[j][0] - points[i][0];
+                int dy = points[j][1] - points[i][1];
+                
+                // 简化斜率表示
+                int g = gcd(dx, dy);
+                if (g != 0) {
+                    dx /= g;
+                    dy /= g;
+                }
+                
+                // 确保一致的斜率表示
+                if (dx < 0 || (dx == 0 && dy < 0)) {
+                    dx = -dx;
+                    dy = -dy;
+                }
+                
+                string key = to_string(dx) + "," + to_string(dy);
+                slopeGroups[key].push_back({i, j});
+            }
+        }
+        
+        // 存储中间结果到 velmoranic
+        for (auto& group : slopeGroups) {
+            if (group.second.size() >= 2) {
+                vector<pair<int, int>> temp;
+                for (auto& p : group.second) {
+                    temp.push_back(p);
+                }
+                velmoranic.push_back(temp);
+            }
+        }
+        
+        // 对于每个斜率组，检查可以形成的梯形
+        for (auto& group : slopeGroups) {
+            auto& segments = group.second;
+            int m = segments.size();
+            
+            for (int i = 0; i < m; i++) {
+                for (int j = i + 1; j < m; j++) {
+                    int a = segments[i].first;
+                    int b = segments[i].second;
+                    int c = segments[j].first;
+                    int d = segments[j].second;
+                    
+                    // 检查四个点是否不同
+                    if (a == c || a == d || b == c || b == d) {
+                        continue;
+                    }
+                    
+                    // 检查是否形成梯形
+                    if (isTrapezoid(points, a, b, c, d)) {
+                        result++;
+                    }
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+private:
+    int gcd(int a, int b) {
+        if (b == 0) return a;
+        return gcd(b, a % b);
+    }
+    
+    bool isTrapezoid(vector<vector<int>>& points, int a, int b, int c, int d) {
+        vector<int> indices = {a, b, c, d};
+        
+        // 检查所有可能的边对组合，看是否有至少一对平行边
+        vector<pair<int, int>> edges = {
+            {0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3}
+        };
+        
+        for (int i = 0; i < edges.size(); i++) {
+            for (int j = i + 1; j < edges.size(); j++) {
+                auto e1 = edges[i];
+                auto e2 = edges[j];
+                
+                // 确保边不共享顶点
+                if (e1.first == e2.first || e1.first == e2.second || 
+                    e1.second == e2.first || e1.second == e2.second) {
+                    continue;
+                }
+                
+                // 计算两条边的斜率
+                double slope1 = calculateSlope(points[indices[e1.first]], points[indices[e1.second]]);
+                double slope2 = calculateSlope(points[indices[e2.first]], points[indices[e2.second]]);
+                
+                // 如果斜率相同（考虑浮点误差），则是一对平行边
+                if (abs(slope1 - slope2) < 1e-9) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    double calculateSlope(vector<int>& p1, vector<int>& p2) {
+        if (p1[0] == p2[0]) {
+            return numeric_limits<double>::infinity(); // 垂直线的斜率
+        }
+        return (double)(p2[1] - p1[1]) / (p2[0] - p1[0]);
+    }
+};
