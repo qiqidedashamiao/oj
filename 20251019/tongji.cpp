@@ -35,18 +35,6 @@ struct Point {
     }
 };
 
-
-
-// 计算向量的点积
-double dotProduct(const Point& a, const Point& b) {
-    return a.x * b.x + a.y * b.y;
-}
-
-// 计算两点之间的距离
-double distance(const Point& a, const Point& b) {
-    return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
-}
-
 // 计算向量的叉积
 double crossProduct(const Point& a, const Point& b) {
     return a.x * b.y - a.y * b.x;
@@ -89,58 +77,6 @@ bool areSegmentsParallelAndNotCollinear(double x1, double y1, double x2, double 
     
     return true; // 平行且不共线
 }
-
-// 计算points中所有的平行边，并且去掉同一条直线上的平行边
-// int findParallelEdges(const vector<Point>& points, vector<pair<pair<Point, Point>, pair<Point, Point>>>& parallelEdges) {
-//     int n = points.size();
-//     int count = 0;
-//     map<pair<int,int>, pair<int,int>> usedLines;
-//     for (int i = 0; i < n; i++)
-//     {
-//         if (i+3 >= n)
-//         {
-//             break;
-//         }
-//         for (int j = i + 1; j < n; j++) 
-//         {
-//             // 判断 points[i]-points[j] 这条线段是否已经处理过
-//             for (int k = j+1; k < n; k++) 
-//             {
-//                 for (int l = k + 1; l < n; l++) 
-//                 {
-//                         // if (areParallel(points[i], points[j], points[k], points[l])) {
-//                         //     parallelEdges.push_back({{points[i], points[j]}, {points[k], points[l]}});
-//                         // }
-//                         if (areSegmentsParallelAndNotCollinear(points[i].x, points[i].y, points[j].x, points[j].y,
-//                                                                points[k].x, points[k].y, points[l].x, points[l].y)) 
-//                         {
-//                             #ifdef log
-//                             // cout << "i:" << i << " j:" << j << " k:" << k << " l:" << l << endl;
-//                             #endif
-//                             count++;
-
-//                             parallelEdges.push_back({{points[i], points[j]}, {points[k], points[l]}});
-//                         }
-//                         else if (areSegmentsParallelAndNotCollinear(points[i].x, points[i].y, points[k].x, points[k].y,
-//                                                                points[j].x, points[j].y, points[l].x, points[l].y)) 
-//                         {
-//                             // cout << "i:" << i << " k:" << k << " j:" << j << " l:" << l << endl;
-//                             count++;
-//                             parallelEdges.push_back({{points[i], points[j]}, {points[l], points[k]}});
-//                         }
-//                         else if (areSegmentsParallelAndNotCollinear(points[i].x, points[i].y, points[l].x, points[l].y,
-//                                                                points[j].x, points[j].y, points[k].x, points[k].y)) 
-//                         {
-//                             // cout << "i:" << i << " l:" << l << " j:" << j << " k:" << k << endl;
-//                             count++;
-//                             parallelEdges.push_back({{points[i], points[j]}, {points[k], points[l]}});
-//                         }
-//                 }
-//             }
-//         }
-//     }
-//     return count;
-// }
 
 
 int findParallelEdges(const vector<Point>& points, vector<pair<pair<Point, Point>, pair<Point, Point>>>& parallelEdges) {
@@ -263,9 +199,6 @@ int findParallelEdges(const vector<Point>& points, vector<pair<pair<Point, Point
 }
 
 
-
-
-
 // 检查四个点是否构成凸四边形
 bool isConvexQuadrilateral(const vector<Point>& points) {
     if (points.size() != 4) return false;
@@ -349,7 +282,7 @@ bool isTrapezoid(const vector<Point>& points) {
 
 
 // 计算任意一条线段的斜率
-int getSlope(const Point& a, const Point& b) {
+double getSlope(const Point& a, const Point& b) {
     if (fabs(b.x - a.x) < 1e-9) {
         return INT_MAX; // 垂直线段，斜率无穷大
     }
@@ -364,10 +297,29 @@ struct info {
     double slope;
 };
 
+bool areSegmentsParallelAndNotCollinear1(double x1, double y1, double x2, double y2, 
+                                       double x3, double y3, double x4, double y4) {
+
+    
+    // 如果平行，检查是否在同一条直线上（共线）
+    // 方法：检查点(x3,y3)是否在线段A所在的直线上
+    // 使用叉积判断三点共线：(x2-x1)*(y3-y1) - (y2-y1)*(x3-x1) == 0
+    
+    double collinearCheck = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
+    if (fabs(collinearCheck) < 1e-9) {
+        return false; // 共线，不是我们要的平行线段
+    }
+    
+    return true; // 平行且不共线
+}
+
 int countBySlope(const vector<Point>& points) {
+#ifdef log
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
     int count = 0;
     int n = points.size();
-    vector<info> slopes((n*n-1)/2);
+    vector<info> slopes;
     int index = 0;
     for (int i = 0; i < n; i++)
     {
@@ -375,17 +327,96 @@ int countBySlope(const vector<Point>& points) {
 
             // 检查两对平行边是否可以组成梯形
             // slope[i][j] = getSlope(points[i], points[j]);
-            slopes[index].i = i;
-            slopes[index].j = j;
-            slopes[index].slope = getSlope(points[i], points[j]);
-
+            // slopes[index].i = i;
+            // slopes[index].j = j;
+            // slopes[index].slope = getSlope(points[i], points[j]);
+            // index++;
+            slopes.push_back({i, j, getSlope(points[i], points[j])});
         }
     }
+
     // 按斜率排序
     sort(slopes.begin(), slopes.end(), [](const info& a, const info& b) {
         return a.slope < b.slope;
     });
-    return count;
+    
+#ifdef log
+    // 获取中间时间点
+    auto mid = std::chrono::high_resolution_clock::now();
+     auto duration_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+    std::cout << "函数第一阶段: " << duration_seconds << " 毫秒" << std::endl;
+    cout << "slopes size:" << slopes.size() << endl;
+#endif
+
+    for (int i = 0; i < slopes.size(); i++)
+    {
+        cout << "i:" << slopes[i].i << " j:" << slopes[i].j << " slope:" << slopes[i].slope << endl;
+    }
+    vector<vector<int>> processed_point;
+    
+    // 统计相同斜率的线段对
+    for (int i = 0; i < slopes.size(); ) {
+        int j = i + 1;   
+        int start_index = i;
+        // if (i % 100 == 0)
+        // {
+        //     cout << "i=" << i<< endl;
+        // }
+        while (j < slopes.size() && fabs(slopes[j].slope - slopes[start_index].slope) < 1e-9)
+        {
+            cout << "  j=" << j<< " index=" << index << " slope=" << slopes[j].slope << " x=" << slopes[j].i <<"(" << points[slopes[j].i].x << "," << points[slopes[j].i].y << ")" << " y=" << slopes[j].j << "(" << points[slopes[j].j].x << "," << points[slopes[j].j].y << ")" << endl;
+            for (int k = start_index; k < j; k++)
+            {
+                // 判断点points[slopes[k].i]和points[slopes[k].j]、points[slopes[j].i]、points[slopes[j].j]是否在同一条线上
+                if (areSegmentsParallelAndNotCollinear1(points[slopes[k].i].x, points[slopes[k].i].y,
+                                                   points[slopes[k].j].x, points[slopes[k].j].y,
+                                                   points[slopes[j].i].x, points[slopes[j].i].y,
+                                                   points[slopes[j].j].x, points[slopes[j].j].y))
+                {
+// #ifdef log
+//                     cout << "Found trapezoid edges: (" << slopes[k].i << "," << slopes[k].j << ") and (" << slopes[j].i << "," << slopes[j].j << ")" << "slopes:" << slopes[k].slope << endl;
+// #endif
+                    count++;
+                    processed_point.push_back({slopes[k].i, slopes[k].j, slopes[j].i, slopes[j].j});
+                }
+            }
+           
+            j++;
+        }
+        i = j;
+    }
+
+
+    // 判断processed_point里面重复的点集合的个数
+    map<string, int> used_points;
+    int used_points_count = 0;
+
+    for (int i = 0; i < processed_point.size(); i++)
+    {
+        // 对processed_point二维里面的点进行从小到大排序
+        sort(processed_point[i].begin(), processed_point[i].end());
+        // 将processed_point[i]里面的点拼接成一个字符串，用_分割
+        string key = to_string(processed_point[i][0]) + "_" + to_string(processed_point[i][1]) + "_" + to_string(processed_point[i][2]) + "_" + to_string(processed_point[i][3]);
+        if (used_points.find(key) == used_points.end())
+        {
+            used_points[key] = 1;
+        }
+        else
+        {
+            used_points_count++ ;
+        }
+    }
+
+#ifdef log
+    auto end = std::chrono::high_resolution_clock::now();
+    // 计算持续时间（以毫秒为单位）
+    // auto duration_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+    auto duration_mid = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
+    std::cout << "函数第一阶段: " << duration_seconds << " 毫秒" << std::endl;
+    std::cout << "函数第二阶段: " << duration_mid << " 毫秒" << std::endl;
+#endif
+
+    return count - used_points_count;
 }
 
 
@@ -414,7 +445,7 @@ int main() {
     auto start = std::chrono::high_resolution_clock::now();
 #endif
 #ifdef input_file
-    ifstream input("yongli/test3.in");
+    ifstream input("yongli/test6.in");
     if (!input.is_open()) {
         cout << "无法打开文件" << endl;
         return 1; // 返回非零值表示程序异常结束
