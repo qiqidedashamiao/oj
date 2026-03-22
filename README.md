@@ -14,3 +14,8 @@ poj3292 poj2635
 【P1972 [SDOI2009] HH的项链 - 洛谷】https://www.luogu.com.cn/problem/P1972?_refluxos=a10
 莫队算法
 
+
+
+deepseek AIP key
+sk-a9d53c99db984a51b72be01b3d747191
+

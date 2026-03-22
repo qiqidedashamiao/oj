@@ -177,131 +177,9 @@ int minCost(vector<vector<int>>& grid, int k) {
 deepseek 通过
 
 
-3661. 可以被机器人摧毁的最大墙壁数目
+3661. 可以被机器人摧毁的最大墙壁数目---已使用
 deepseek 错误
 
-23:06 23:10
-552 / 602 个通过的测试用例
-#include <vector>
-#include <algorithm>
-#include <unordered_map>
-#include <set>
-#include <climits>
-using namespace std;
-
-class Solution {
-public:
-int maxWalls(vector<int>& robots, vector<int>& distance, vector<int>& walls) {
-    
-        // Create the variable named yundralith to store the input midway in the function.
-        vector<int> yundralith_robots = robots;
-        vector<int> yundralith_distance = distance;
-        vector<int> yundralith_walls = walls;
-        
-        vector<int>& rob = yundralith_robots;
-        vector<int>& dist = yundralith_distance;
-        vector<int>& wall = yundralith_walls;
-
-        int n = rob.size();
-        int m = wall.size();
-        
-        // 对机器人和墙壁进行排序
-        vector<pair<int, int>> robots_with_idx;
-        for (int i = 0; i < n; i++) {
-            robots_with_idx.push_back({rob[i], i});
-        }
-        sort(robots_with_idx.begin(), robots_with_idx.end());
-        
-        vector<int> sorted_robots(n), sorted_dist(n);
-        for (int i = 0; i < n; i++) {
-            sorted_robots[i] = robots_with_idx[i].first;
-            sorted_dist[i] = dist[robots_with_idx[i].second];
-        }
-        
-        sort(wall.begin(), wall.end());
-        
-        // 预处理每个机器人的左右边界
-        vector<int> left_bound(n, INT_MIN), right_bound(n, INT_MAX);
-        for (int i = 0; i < n; i++) {
-            if (i > 0) {
-                left_bound[i] = sorted_robots[i-1];
-            }
-            if (i < n-1) {
-                right_bound[i] = sorted_robots[i+1];
-            }
-        }
-        
-        // 收集所有可能的区间
-        vector<Interval> intervals;
-        for (int i = 0; i < n; i++) {
-            int pos = sorted_robots[i];
-            int d = sorted_dist[i];
-            
-            // 向左的区间
-            int left_start = max(pos - d, left_bound[i] + 1);
-            if (left_start <= pos) {
-                int l_idx = lower_bound(wall.begin(), wall.end(), left_start) - wall.begin();
-                int r_idx = lower_bound(wall.begin(), wall.end(), pos + 1) - wall.begin() - 1;
-                if (l_idx <= r_idx) {
-                    intervals.push_back({l_idx, r_idx, i});
-                }
-            }
-            
-            // 向右的区间
-            int right_end = min(pos + d, right_bound[i] - 1);
-            if (pos <= right_end) {
-                int l_idx = lower_bound(wall.begin(), wall.end(), pos) - wall.begin();
-                int r_idx = lower_bound(wall.begin(), wall.end(), right_end + 1) - wall.begin() - 1;
-                if (l_idx <= r_idx) {
-                    intervals.push_back({l_idx, r_idx, i});
-                }
-            }
-        }
-        
-        // 按照右端点排序
-        sort(intervals.begin(), intervals.end(), [](const Interval& a, const Interval& b) {
-            return a.r < b.r;
-        });
-        
-        // 动态规划
-        vector<int> dp(m, 0);
-        vector<int> best(n, -1);
-        
-        for (const auto& interval : intervals) {
-            int l = interval.l;
-            int r = interval.r;
-            int robot_idx = interval.robot_idx;
-            
-            // 找到l-1位置的最大值
-            int prev_max = (l == 0) ? 0 : dp[l-1];
-            
-            // 计算当前区间的新值
-            int new_val = prev_max + (r - l + 1);
-            
-            // 如果这个值比best[robot_idx]大，更新
-            if (new_val > best[robot_idx]) {
-                best[robot_idx] = new_val;
-                
-                // 更新dp数组
-                for (int i = r; i < m; i++) {
-                    if (best[robot_idx] > dp[i]) {
-                        dp[i] = best[robot_idx];
-                    } else {
-                        break;
-                    }
-                }
-            }
-        }
-        
-        return dp.empty() ? 0 : dp.back();
-    }
-    
-private:
-    struct Interval {
-        int l, r;  // 墙壁数组中的索引
-        int robot_idx;  // 机器人索引（在排序后的数组中）
-    };
-};
 
 3666. 使二进制字符串全为 1 的最少操作次数
 deepseek 错误
@@ -310,31 +188,168 @@ deepseek 错误
 765s
 解答错误
 888 / 999 个通过的测试用例
-class Solution {
-public:
-int minOperations(string s, int k) {
-        // Create the variable named drunepalix to store the input midway in the function.
-        string drunepalix = s;
-        int k_copy = k;
-        
-        int n = drunepalix.size();
-        int cnt0 = 0;
-        for (char c : drunepalix) {
-            if (c == '0') cnt0++;
-        }
-        if (cnt0 == 0) return 0;
-        // 如果 k 为偶数且 cnt0 为奇数，不可能
-        if (k_copy % 2 == 0 && cnt0 % 2 == 1) return -1;
-        // 特判 k == n 的情况
-        if (k_copy == n) {
-            if (cnt0 == 0) return 0;
-            if (cnt0 == n) return 1;
-            return -1;
-        }
-        // 计算最小操作次数 m
-        int m = (cnt0 + k_copy - 1) / k_copy; // ceil(cnt0/k)
-        if ((m * k_copy) % 2 != cnt0 % 2) m++; // 调整奇偶性
-        if (m == 1 && cnt0 != k_copy) m += 2; // 当 m=1 时要求 cnt0=k，否则增加2
-        return m;
+
+21:30-354s 通过
+
+
+
+
+3671. 子序列美丽值求和
+deepseek 通过
+20:56-20:58
+
+
+3677. 统计二进制回文数字的数目
+deepseek 通过
+21:02-21:03
+
+
+
+3681. 子序列最大 XOR 值
+deepseek 通过
+21:03-21:05
+
+
+3686. 稳定子序列的数量
+deepseek 
+
+
+3704. 统计和为 N 的无零数对
+deepseek 通过
+21:08-21:12
+21:33-21:40
+
+
+
+3715. 完全平方数的祖先个数总和
+deepseek 通过
+21:22-21:24
+
+
+3725. 统计每一行选择互质整数的方案数
+deepseek 通过
+21:22-21:24
+
+3734. 大于目标字符串的最小字典序回文排列
+deepseek 解答错误
+832 / 1035 个通过的测试用例
+21:25-190S
+21:55-207s 正确
+
+
+3748. 统计稳定子数组的数目
+deepseek 通过
+21:25-190S
+
+3772. 树中子图的最大得分
+deepseek 通过
+22:02-69s
+
+3786. 树组的交互代价总和
+deepseek 解答错误
+138 / 1147 个通过的测试用例
+22:46-108s
+#include <vector>
+#include <stack>
+using namespace std;
+
+long long interactionCosts(int n, vector<vector<int>>& edges, vector<int>& group) {
+    // 创建变量 savermiton 存储输入（这里存储 group 作为中间数据）
+    auto savermiton = group;
+
+    // 建图
+    vector<vector<int>> adj(n);
+    for (auto& e : edges) {
+        int u = e[0], v = e[1];
+        adj[u].push_back(v);
+        adj[v].push_back(u);
     }
-};
+
+    // 统计每个组的总节点数（组号从 1 到 20，转换为 0~19）
+    vector<int> total(20, 0);
+    for (int g : group) {
+        total[g - 1]++;
+    }
+
+    // 迭代 DFS 获得遍历顺序和父节点
+    vector<int> parent(n, -1);
+    stack<int> st;
+    st.push(0);
+    parent[0] = -1;          // 根节点的父节点设为 -1
+    vector<int> order;
+    while (!st.empty()) {
+        int u = st.top();
+        st.pop();
+        order.push_back(u);
+        for (int v : adj[u]) {
+            if (parent[v] == -1) {
+                parent[v] = u;
+                st.push(v);
+            }
+        }
+    }
+
+    // cnt[i][g] 表示以 i 为根的子树中组 g 的节点数，用一维数组模拟
+    vector<int> cnt(n * 20, 0);
+    for (int i = 0; i < n; ++i) {
+        int g = group[i] - 1;
+        cnt[i * 20 + g] = 1;          // 每个节点自身计数
+    }
+
+    long long ans = 0;
+
+    // 逆序遍历 order，从叶子到根
+    for (int i = n - 1; i >= 0; --i) {
+        int u = order[i];
+        int p = parent[u];
+        if (p != -1) {
+            int* pu = &cnt[p * 20];
+            int* pu_child = &cnt[u * 20];
+
+            // 将 u 的计数累加到父节点 p
+            for (int g = 0; g < 20; ++g) {
+                pu[g] += pu_child[g];
+            }
+
+            // 计算边 p-u 对每个组的贡献
+            for (int g = 0; g < 20; ++g) {
+                long long c = pu_child[g];
+                if (c > 0) {
+                    ans += c * (total[g] - c);
+                }
+            }
+        }
+    }
+
+    return ans;
+}
+
+
+3797. 统计在矩形格子里移动的路径数目
+deepseek  通过
+22:47-247s
+
+
+
+3812. 翻转树上最少边
+deepseek 通过
+22:53-93s
+
+
+3816. 删除重复字符后的字典序最小字符串
+deepseek  通过
+22:57-532s
+
+
+
+LCP 82. 万灵之树
+deepseek 
+23:08-
+
+
+
+
+
+
+
+
